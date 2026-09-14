@@ -1,0 +1,21 @@
+{
+  "name": "kema-invoice-mcp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Kema Invoice MCP connector: documentation, tool catalogue, client examples and a connection checker for the remote MCP server at mcp.kema-studio.com.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "verify": "tsx scripts/verify-connection.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
+    "@types/node": "^22.0.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  },
+  "repository": { "type": "git", "url": "https://github.com/Kema-Studio/kema-invoice-mcp" },
+  "homepage": "https://invoice.kema-studio.com",
+  "keywords": ["mcp", "model-context-protocol", "invoicing", "e-invoicing", "factur-x", "en16931", "claude", "cursor", "ai-agent"]
+}

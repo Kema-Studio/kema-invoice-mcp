@@ -1,0 +1,23 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.kema-studio/invoice",
+  "title": "Kema Invoice",
+  "description": "Compliant invoicing for freelancers: create, issue and track invoices from your AI agent.",
+  "version": "1.0.0",
+  "websiteUrl": "https://invoice.kema-studio.com",
+  "icons": [
+    {
+      "src": "https://invoice.kema-studio.com/icon.svg",
+      "mimeType": "image/svg+xml",
+      "sizes": [
+        "any"
+      ]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.kema-studio.com/api/mcp"
+    }
+  ]
+}

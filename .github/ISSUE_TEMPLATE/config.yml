@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Account, billing or invoice questions
+    url: https://docs.kema-studio.com/invoice/faq-support
+    about: Anything about your account or your invoices goes through the app support (Help button) or hello@kema-studio.com, not through GitHub issues.
+  - name: Documentation
+    url: https://docs.kema-studio.com/invoice
+    about: User guide, connecting your agent, legal documents.

@@ -1,0 +1,377 @@
+{
+  "server": "com.kema-studio/invoice",
+  "version": "1.0.0",
+  "endpoint": "https://mcp.kema-studio.com/api/mcp",
+  "count": 41,
+  "tools": [
+    {
+      "name": "create_invoice",
+      "title": "Create invoice (draft)",
+      "description": "Create a new invoice in Draft status for a company, with line items. The invoice is NOT sent or certified - a human issues it from the app (or use issue_invoice). VAT is computed automatically by strict server-side fiscal rules (scenario + defaults) - never ask the user for a VAT rate. The fiscal scenario and client snapshot are frozen at creation.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "issue_invoice",
+      "title": "Issue invoice (LEGALLY BINDING - fiscal certification)",
+      "description": "Issue a Draft invoice - the legal act of CREATING the invoice (the product calls this 'Créer la facture'; the old 'send' concept is obsolete). The draft becomes a certified, immutable invoice (status Sent, displayed as 'Créée') and is IMMEDIATELY submitted for fiscal certification. IRREVERSIBLE and legally binding under French law - undone only with a credit note. ALWAYS show the user the invoice details and get their explicit approval before calling with confirm:true. Without confirm, returns a preview of what will be certified.",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": true,
+      "group": "invoices"
+    },
+    {
+      "name": "list_invoices",
+      "title": "List invoices",
+      "description": "List the authenticated tenant's invoices, most recent first. Supports filtering by status, document type, and a free-text search on invoice number or client name, plus pagination.",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "get_invoice",
+      "title": "Get invoice",
+      "description": "Fetch a single invoice by id, including its line items, client, and totals. Returns null-shaped error if the invoice is not visible to the caller.",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "get_invoice_pdf",
+      "title": "Get invoice PDF link",
+      "description": "Return a temporary (1 hour) signed download URL for an invoice's PDF. Works for any document visible to the caller: imported invoices return their uploaded file; invoices issued in Kema Invoice (by the app or an agent) are rendered server-side with the workspace branding and, once certified, embed the Factur-X XML. Drafts render too (flagged is_draft: true) but are not legal documents yet.",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": true,
+      "group": "invoices"
+    },
+    {
+      "name": "update_invoice",
+      "title": "Update invoice (draft)",
+      "description": "Update fields of a Draft invoice (dates, payment terms, notes, or reassign the company). Only Draft invoices can be modified - a Sent/certified invoice is immutable.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "delete_invoice",
+      "title": "Delete invoice (draft)",
+      "description": "Soft-delete a Draft invoice. Irreversible from the user's view. Call with confirm:true to actually delete; without it, returns a preview of what would be deleted.",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "cancel_invoice",
+      "title": "Cancel invoice",
+      "description": "Cancel a non-paid invoice (status → Cancelled). Irreversible. For a certified (Sent) invoice, French law generally requires a credit note (create_credit_note) rather than a plain cancel. Call with confirm:true to act; otherwise returns a preview.",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "mark_invoice_paid",
+      "title": "Mark invoice paid",
+      "description": "Mark a Sent or Overdue invoice as Paid. Optionally set the payment date (defaults to now).",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "add_invoice_item",
+      "title": "Add line item (draft)",
+      "description": "Add a line item to a Draft invoice. Totals are recalculated automatically.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "update_invoice_item",
+      "title": "Update line item (draft)",
+      "description": "Update a line item on a Draft invoice. Totals are recalculated automatically. Item ids come from get_invoice or add_invoice_item.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "delete_invoice_item",
+      "title": "Delete line item (draft)",
+      "description": "Remove a line item from a Draft invoice. Totals are recalculated automatically. Item ids come from get_invoice or add_invoice_item. Call with confirm:true to delete; without it, returns a preview of the item.",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "reorder_invoice_items",
+      "title": "Reorder invoice items",
+      "description": "Set the display order of an invoice's line items. Pass the full desired order: every item id with its 0-based display_order. Item ids come from get_invoice or add_invoice_item.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "update_invoice_matter",
+      "title": "Reassign invoice matter",
+      "description": "Attach or detach the matter (dossier) on an invoice. Purely organizational - allowed even after the invoice is Sent, but not on a Cancelled invoice. Pass matter_id null to detach.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "invoices"
+    },
+    {
+      "name": "check_certification_status",
+      "title": "Check certification status",
+      "description": "Refresh an issued invoice's fiscal certification status by querying the certification provider and reconciling it into the database. Use after issue_invoice when certification_status is 'processing' or looks stale.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": true,
+      "group": "invoices"
+    },
+    {
+      "name": "create_credit_note",
+      "title": "Create credit note + cancel invoice (LEGALLY BINDING)",
+      "description": "Cancel a Sent or Paid invoice by issuing a credit note (avoir). The credit note is a legal fiscal document (fiscally certified when the original was certified) and is IMMUTABLE once created. IRREVERSIBLE. ALWAYS get the user's explicit approval before calling with confirm:true. Without confirm, returns a preview.",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": true,
+      "group": "invoices"
+    },
+    {
+      "name": "rectify_invoice",
+      "title": "Rectify invoice",
+      "description": "Create a rectifying invoice (facture rectificative) for a Sent or Paid invoice: a NEW Draft invoice pre-filled from the original (same client, copied line items unless overridden) and legally linked to it. The original is marked Rectified only when the rectificative is issued. Call with confirm:true to create; without it, returns a preview.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "rectification"
+    },
+    {
+      "name": "get_rectification_links",
+      "title": "Get rectification links",
+      "description": "For one invoice, return the rectification chain: the original it replaces (if it is a rectificative) and/or the rectificative that replaced it (if it was rectified). Both null when the invoice is not part of a chain.",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "group": "rectification"
+    },
+    {
+      "name": "import_external_invoice",
+      "title": "Import external invoice",
+      "description": "Import a historical/external invoice with its OWN invoice number (kept verbatim), totals, and status - no line items. Use for migrating past invoices issued outside Kema Invoice; NOT for creating new invoices (use create_invoice).",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "rectification"
+    },
+    {
+      "name": "create_quote",
+      "title": "Create quote (draft)",
+      "description": "Create a Draft quote (devis) for a company. Quotes are not fiscal documents - no certification. Dates default server-side (issue today, due/valid +30 days). Requires a matter id (dossier) the quote belongs to.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "quotes"
+    },
+    {
+      "name": "send_quote",
+      "title": "Send quote",
+      "description": "Transition a Draft quote to Sent (the client-facing state). No certification is involved - quotes are commercial documents. French B2B validation (SIREN/VAT) applies when the tenant is French.",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "group": "quotes"
+    },
+    {
+      "name": "accept_quote",
+      "title": "Accept quote",
+      "description": "Mark a Sent quote as Accepted by the client. Follow up with convert_quote_to_invoice to bill it.",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "group": "quotes"
+    },
+    {
+      "name": "reject_quote",
+      "title": "Reject quote",
+      "description": "Mark a Sent quote as Rejected by the client. This ends the quote's lifecycle. Call with confirm:true to apply; without it, returns a preview.",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "group": "quotes"
+    },
+    {
+      "name": "convert_quote_to_invoice",
+      "title": "Convert quote to invoice",
+      "description": "Create a new Draft invoice from an Accepted quote (line items copied, source_quote_id set for traceability). The invoice then follows the normal lifecycle (issue_invoice to make it legally binding). Call with confirm:true to apply; without it, returns a preview.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "quotes"
+    },
+    {
+      "name": "create_provision",
+      "title": "Create provision (Draft)",
+      "description": "Create a provision document (avance sur honoraires, retainer) in Draft status for a company, optionally attached to a matter. NOT issued or certified - use send_provision for the legal issuance. VAT is computed automatically by strict server-side fiscal rules - never ask the user for a VAT rate. Provisions use their own PROV number series and, once paid, become a client credit deductible from the final invoice (apply_provisions_to_invoice).",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "provisions"
+    },
+    {
+      "name": "send_provision",
+      "title": "Issue provision (LEGALLY BINDING - fiscal certification)",
+      "description": "Issue a Draft provision - the legal act of creating it. The draft becomes a certified document (status Sent) and is IMMEDIATELY submitted for fiscal certification (PROV series). IRREVERSIBLE and legally binding under French law. ALWAYS show the user the provision details and get their explicit approval before calling with confirm:true. Without confirm, returns a preview of what will be certified.",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": true,
+      "group": "provisions"
+    },
+    {
+      "name": "mark_provision_paid",
+      "title": "Mark provision paid",
+      "description": "Mark an issued provision (status Sent/Overdue) as Paid. A paid provision becomes a client credit that can be deducted from that client's final invoice with apply_provisions_to_invoice.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "provisions"
+    },
+    {
+      "name": "list_available_provisions",
+      "title": "List available provisions",
+      "description": "List PAID provisions (avances sur honoraires, retainers) that have not been applied to a final invoice yet - the deductible client credit. Without matter_id, lists the standalone retainers (no matter), which is the normal case in Kema Invoice; with matter_id, lists that matter's retainers. Use before apply_provisions_to_invoice.",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "group": "provisions"
+    },
+    {
+      "name": "apply_provisions_to_invoice",
+      "title": "Apply provisions to invoice",
+      "description": "Deduct one or more PAID provisions from a DRAFT final invoice of the same client (and of the same matter when one is attached). Updates the invoice's advances_total and amount_due. Reversible while the invoice is still Draft (remove_provision_from_invoice).",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "provisions"
+    },
+    {
+      "name": "remove_provision_from_invoice",
+      "title": "Remove provision from invoice",
+      "description": "Detach a provision from a DRAFT final invoice and recalculate its advances_total / amount_due. The provision becomes available again for that matter.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "provisions"
+    },
+    {
+      "name": "list_companies",
+      "title": "List companies",
+      "description": "List the authenticated tenant's client companies (name, email, VAT/tax id, country). Useful to resolve a company id before other lookups.",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "group": "companies"
+    },
+    {
+      "name": "get_company",
+      "title": "Get company",
+      "description": "Fetch one customer company with the full billing-relevant record: legal identity, VAT/SIREN, address, contact details, and client profile classification.",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "group": "companies"
+    },
+    {
+      "name": "create_company",
+      "title": "Create company",
+      "description": "Create a customer company for the tenant. A VAT/tax id is required later to bill it as B2B.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "companies"
+    },
+    {
+      "name": "update_company",
+      "title": "Update company",
+      "description": "Update fields of an existing client company (name, contact info, address, VAT number, SIREN). Only provided fields change. Fixing the VAT number / SIREN / address here is often required before an invoice for this client can be certified.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "companies"
+    },
+    {
+      "name": "delete_company",
+      "title": "Delete company",
+      "description": "Soft-delete a client company. Blocked when contacts are still linked to it. Call with confirm:true to delete; without it, returns a preview.",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "group": "companies"
+    },
+    {
+      "name": "get_invoice_client_profile",
+      "title": "Get client billing profile",
+      "description": "Per-company invoicing defaults (payment terms, delivery channel, custom invoice prefix). Returns {profile: null} when the company has none - profiles are created lazily.",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "group": "profiles"
+    },
+    {
+      "name": "upsert_invoice_client_profile",
+      "title": "Upsert client billing profile",
+      "description": "Create or update a company's invoicing defaults (payment terms, delivery channel, invoice prefix). These defaults pre-fill future invoices for that client.",
+      "readOnly": false,
+      "destructive": false,
+      "openWorld": false,
+      "group": "profiles"
+    },
+    {
+      "name": "delete_invoice_client_profile",
+      "title": "Delete client billing profile",
+      "description": "Remove a company's invoicing defaults (the company itself is untouched). Call with confirm:true to actually delete; without it, returns a preview.",
+      "readOnly": false,
+      "destructive": true,
+      "openWorld": false,
+      "group": "profiles"
+    },
+    {
+      "name": "get_revenue_summary",
+      "title": "Get revenue summary",
+      "description": "Aggregate revenue figures: collected in the period (by payment date), current outstanding and overdue (point-in-time), documents issued in the period, draft count, and net credit-note effect. Defaults to the current month.",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "group": "reporting"
+    },
+    {
+      "name": "get_settings",
+      "title": "Get settings (read-only)",
+      "description": "Read-only snapshot of the tenant's invoicing settings: legal identity, fiscal country and regime, default VAT rate and payment terms, billing email, and the caller's UI language. Settings can only be CHANGED from the app.",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "group": "reporting"
+    },
+    {
+      "name": "list_mcp_activity",
+      "title": "List MCP activity",
+      "description": "The tenant's recent agent activity log: one entry per successful MCP tool call (tool name, related invoice number when known, timestamp). Newest first.",
+      "readOnly": true,
+      "destructive": false,
+      "openWorld": false,
+      "group": "reporting"
+    }
+  ]
+}

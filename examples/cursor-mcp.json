@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "kema-invoice": {
+      "type": "http",
+      "url": "https://mcp.kema-studio.com/api/mcp"
+    }
+  }
+}
