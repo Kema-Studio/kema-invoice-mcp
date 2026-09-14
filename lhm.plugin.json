@@ -1,0 +1,196 @@
+{
+  "identifier": "kema-invoice",
+  "name": "Kema Invoice",
+  "version": "1.0.1",
+  "author": "Kema Studio",
+  "authorUrl": "https://github.com/Kema-Studio",
+  "category": "productivity",
+  "cloudEndpoint": "https://mcp.kema-studio.com/api/mcp",
+  "description": "Compliant e-invoicing (Factur-X, EN 16931) that AI agents operate over MCP: create, issue, send and track invoices, quotes and retainers in plain language. Remote server, OAuth 2.1.",
+  "homepage": "https://github.com/Kema-Studio/kema-invoice-mcp",
+  "icon": "https://invoice.kema-studio.com/icon.svg",
+  "tags": [
+    "invoicing",
+    "e-invoicing",
+    "factur-x",
+    "en16931",
+    "finance",
+    "france",
+    "claude",
+    "remote",
+    "oauth"
+  ],
+  "localizations": [
+    {
+      "locale": "fr-FR",
+      "name": "Kema Invoice",
+      "description": "Facturation électronique conforme (Factur-X, EN 16931) pilotée par vos agents IA via MCP : créer, émettre, envoyer et suivre factures, devis et provisions en langage naturel. Serveur distant, OAuth 2.1."
+    }
+  ],
+  "tools": [
+    {
+      "name": "create_invoice",
+      "description": "Create a new invoice in Draft status for a company, with line items. The invoice is NOT sent or certified - a human issues it from the app (or use issue_invoice). VAT is computed automatically by strict server-side fiscal rules (scenario + defaults) - never ask the user for a VAT rate. The fiscal scenario and client snapshot are frozen at creation."
+    },
+    {
+      "name": "issue_invoice",
+      "description": "Issue a Draft invoice - the legal act of CREATING the invoice (the product calls this 'Créer la facture'; the old 'send' concept is obsolete). The draft becomes a certified, immutable invoice (status Sent, displayed as 'Créée') and is IMMEDIATELY submitted for fiscal certification. IRREVERSIBLE and legally binding under French law - undone only with a credit note. ALWAYS show the user the invoice details and get their explicit approval before calling with confirm:true. Without confirm, returns a preview of what will be certified."
+    },
+    {
+      "name": "list_invoices",
+      "description": "List the authenticated tenant's invoices, most recent first. Supports filtering by status, document type, and a free-text search on invoice number or client name, plus pagination."
+    },
+    {
+      "name": "get_invoice",
+      "description": "Fetch a single invoice by id, including its line items, client, and totals. Returns null-shaped error if the invoice is not visible to the caller."
+    },
+    {
+      "name": "get_invoice_pdf",
+      "description": "Return a temporary (1 hour) signed download URL for an invoice's PDF. Works for any document visible to the caller: imported invoices return their uploaded file; invoices issued in Kema Invoice (by the app or an agent) are rendered server-side with the workspace branding and, once certified, embed the Factur-X XML. Drafts render too (flagged is_draft: true) but are not legal documents yet."
+    },
+    {
+      "name": "update_invoice",
+      "description": "Update fields of a Draft invoice (dates, payment terms, notes, or reassign the company). Only Draft invoices can be modified - a Sent/certified invoice is immutable."
+    },
+    {
+      "name": "delete_invoice",
+      "description": "Soft-delete a Draft invoice. Irreversible from the user's view. Call with confirm:true to actually delete; without it, returns a preview of what would be deleted."
+    },
+    {
+      "name": "cancel_invoice",
+      "description": "Cancel a non-paid invoice (status → Cancelled). Irreversible. For a certified (Sent) invoice, French law generally requires a credit note (create_credit_note) rather than a plain cancel. Call with confirm:true to act; otherwise returns a preview."
+    },
+    {
+      "name": "mark_invoice_paid",
+      "description": "Mark a Sent or Overdue invoice as Paid. Optionally set the payment date (defaults to now)."
+    },
+    {
+      "name": "add_invoice_item",
+      "description": "Add a line item to a Draft invoice. Totals are recalculated automatically."
+    },
+    {
+      "name": "update_invoice_item",
+      "description": "Update a line item on a Draft invoice. Totals are recalculated automatically. Item ids come from get_invoice or add_invoice_item."
+    },
+    {
+      "name": "delete_invoice_item",
+      "description": "Remove a line item from a Draft invoice. Totals are recalculated automatically. Item ids come from get_invoice or add_invoice_item. Call with confirm:true to delete; without it, returns a preview of the item."
+    },
+    {
+      "name": "reorder_invoice_items",
+      "description": "Set the display order of an invoice's line items. Pass the full desired order: every item id with its 0-based display_order. Item ids come from get_invoice or add_invoice_item."
+    },
+    {
+      "name": "update_invoice_matter",
+      "description": "Attach or detach the matter (dossier) on an invoice. Purely organizational - allowed even after the invoice is Sent, but not on a Cancelled invoice. Pass matter_id null to detach."
+    },
+    {
+      "name": "check_certification_status",
+      "description": "Refresh an issued invoice's fiscal certification status by querying the certification provider and reconciling it into the database. Use after issue_invoice when certification_status is 'processing' or looks stale."
+    },
+    {
+      "name": "create_credit_note",
+      "description": "Cancel a Sent or Paid invoice by issuing a credit note (avoir). The credit note is a legal fiscal document (fiscally certified when the original was certified) and is IMMUTABLE once created. IRREVERSIBLE. ALWAYS get the user's explicit approval before calling with confirm:true. Without confirm, returns a preview."
+    },
+    {
+      "name": "rectify_invoice",
+      "description": "Create a rectifying invoice (facture rectificative) for a Sent or Paid invoice: a NEW Draft invoice pre-filled from the original (same client, copied line items unless overridden) and legally linked to it. The original is marked Rectified only when the rectificative is issued. Call with confirm:true to create; without it, returns a preview."
+    },
+    {
+      "name": "get_rectification_links",
+      "description": "For one invoice, return the rectification chain: the original it replaces (if it is a rectificative) and/or the rectificative that replaced it (if it was rectified). Both null when the invoice is not part of a chain."
+    },
+    {
+      "name": "import_external_invoice",
+      "description": "Import a historical/external invoice with its OWN invoice number (kept verbatim), totals, and status - no line items. Use for migrating past invoices issued outside Kema Invoice; NOT for creating new invoices (use create_invoice)."
+    },
+    {
+      "name": "create_quote",
+      "description": "Create a Draft quote (devis) for a company. Quotes are not fiscal documents - no certification. Dates default server-side (issue today, due/valid +30 days). Requires a matter id (dossier) the quote belongs to."
+    },
+    {
+      "name": "send_quote",
+      "description": "Transition a Draft quote to Sent (the client-facing state). No certification is involved - quotes are commercial documents. French B2B validation (SIREN/VAT) applies when the tenant is French."
+    },
+    {
+      "name": "accept_quote",
+      "description": "Mark a Sent quote as Accepted by the client. Follow up with convert_quote_to_invoice to bill it."
+    },
+    {
+      "name": "reject_quote",
+      "description": "Mark a Sent quote as Rejected by the client. This ends the quote's lifecycle. Call with confirm:true to apply; without it, returns a preview."
+    },
+    {
+      "name": "convert_quote_to_invoice",
+      "description": "Create a new Draft invoice from an Accepted quote (line items copied, source_quote_id set for traceability). The invoice then follows the normal lifecycle (issue_invoice to make it legally binding). Call with confirm:true to apply; without it, returns a preview."
+    },
+    {
+      "name": "create_provision",
+      "description": "Create a provision document (avance sur honoraires, retainer) in Draft status for a company, optionally attached to a matter. NOT issued or certified - use send_provision for the legal issuance. VAT is computed automatically by strict server-side fiscal rules - never ask the user for a VAT rate. Provisions use their own PROV number series and, once paid, become a client credit deductible from the final invoice (apply_provisions_to_invoice)."
+    },
+    {
+      "name": "send_provision",
+      "description": "Issue a Draft provision - the legal act of creating it. The draft becomes a certified document (status Sent) and is IMMEDIATELY submitted for fiscal certification (PROV series). IRREVERSIBLE and legally binding under French law. ALWAYS show the user the provision details and get their explicit approval before calling with confirm:true. Without confirm, returns a preview of what will be certified."
+    },
+    {
+      "name": "mark_provision_paid",
+      "description": "Mark an issued provision (status Sent/Overdue) as Paid. A paid provision becomes a client credit that can be deducted from that client's final invoice with apply_provisions_to_invoice."
+    },
+    {
+      "name": "list_available_provisions",
+      "description": "List PAID provisions (avances sur honoraires, retainers) that have not been applied to a final invoice yet - the deductible client credit. Without matter_id, lists the standalone retainers (no matter), which is the normal case in Kema Invoice; with matter_id, lists that matter's retainers. Use before apply_provisions_to_invoice."
+    },
+    {
+      "name": "apply_provisions_to_invoice",
+      "description": "Deduct one or more PAID provisions from a DRAFT final invoice of the same client (and of the same matter when one is attached). Updates the invoice's advances_total and amount_due. Reversible while the invoice is still Draft (remove_provision_from_invoice)."
+    },
+    {
+      "name": "remove_provision_from_invoice",
+      "description": "Detach a provision from a DRAFT final invoice and recalculate its advances_total / amount_due. The provision becomes available again for that matter."
+    },
+    {
+      "name": "list_companies",
+      "description": "List the authenticated tenant's client companies (name, email, VAT/tax id, country). Useful to resolve a company id before other lookups."
+    },
+    {
+      "name": "get_company",
+      "description": "Fetch one customer company with the full billing-relevant record: legal identity, VAT/SIREN, address, contact details, and client profile classification."
+    },
+    {
+      "name": "create_company",
+      "description": "Create a customer company for the tenant. A VAT/tax id is required later to bill it as B2B."
+    },
+    {
+      "name": "update_company",
+      "description": "Update fields of an existing client company (name, contact info, address, VAT number, SIREN). Only provided fields change. Fixing the VAT number / SIREN / address here is often required before an invoice for this client can be certified."
+    },
+    {
+      "name": "delete_company",
+      "description": "Soft-delete a client company. Blocked when contacts are still linked to it. Call with confirm:true to delete; without it, returns a preview."
+    },
+    {
+      "name": "get_invoice_client_profile",
+      "description": "Per-company invoicing defaults (payment terms, delivery channel, custom invoice prefix). Returns {profile: null} when the company has none - profiles are created lazily."
+    },
+    {
+      "name": "upsert_invoice_client_profile",
+      "description": "Create or update a company's invoicing defaults (payment terms, delivery channel, invoice prefix). These defaults pre-fill future invoices for that client."
+    },
+    {
+      "name": "delete_invoice_client_profile",
+      "description": "Remove a company's invoicing defaults (the company itself is untouched). Call with confirm:true to actually delete; without it, returns a preview."
+    },
+    {
+      "name": "get_revenue_summary",
+      "description": "Aggregate revenue figures: collected in the period (by payment date), current outstanding and overdue (point-in-time), documents issued in the period, draft count, and net credit-note effect. Defaults to the current month."
+    },
+    {
+      "name": "get_settings",
+      "description": "Read-only snapshot of the tenant's invoicing settings: legal identity, fiscal country and regime, default VAT rate and payment terms, billing email, and the caller's UI language. Settings can only be CHANGED from the app."
+    },
+    {
+      "name": "list_mcp_activity",
+      "description": "The tenant's recent agent activity log: one entry per successful MCP tool call (tool name, related invoice number when known, timestamp). Newest first."
+    }
+  ]
+}
