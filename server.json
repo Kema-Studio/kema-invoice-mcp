@@ -3,8 +3,13 @@
   "name": "com.kema-studio/invoice",
   "title": "Kema Invoice",
   "description": "Compliant invoicing for freelancers: create, issue and track invoices from your AI agent.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "websiteUrl": "https://invoice.kema-studio.com",
+  "repository": {
+    "url": "https://github.com/Kema-Studio/kema-invoice-mcp",
+    "source": "github",
+    "id": "1369894876"
+  },
   "icons": [
     {
       "src": "https://invoice.kema-studio.com/icon.svg",

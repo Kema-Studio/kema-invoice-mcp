@@ -1,6 +1,6 @@
 {
   "server": "com.kema-studio/invoice",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "endpoint": "https://mcp.kema-studio.com/api/mcp",
   "count": 41,
   "tools": [
