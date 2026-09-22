@@ -7,7 +7,7 @@
     {
       "name": "create_invoice",
       "title": "Create invoice (draft)",
-      "description": "Create an invoice for a company, with line items. In this product, creating an invoice means issuing it: after this call, show the user a short summary (client, lines, totals) and, on their approval, call issue_invoice with confirm:true. Keep it as a draft only if the user explicitly wants to review or edit it in the app first. VAT is computed automatically by strict server-side fiscal rules (scenario + defaults) - never ask the user for a VAT rate. The fiscal scenario and client snapshot are frozen at creation.",
+      "description": "Create an invoice for a company, with line items. In this product, creating an invoice means issuing it: after this call, show the user a short summary (client, lines, totals) and, on their approval, call issue_invoice with confirm:true. Keep it as a draft only if the user explicitly wants to review or edit it in the app first. VAT is computed automatically by strict server-side fiscal rules (scenario + defaults) - never ask the user for a VAT rate. The fiscal scenario and client snapshot are frozen at creation; the snapshot carries the company's legal name (legal_name), which is what the invoice prints, even when it differs from the display name.",
       "readOnly": false,
       "destructive": false,
       "openWorld": false,
