@@ -70,7 +70,7 @@
     {
       "name": "cancel_invoice",
       "title": "Cancel invoice",
-      "description": "Cancel a non-paid invoice (status → Cancelled). Irreversible. For a certified (Sent) invoice, French law generally requires a credit note (create_credit_note) rather than a plain cancel. Call with confirm:true to act; otherwise returns a preview.",
+      "description": "Cancel a DRAFT invoice (status → Cancelled). Irreversible. Issued documents (Sent, Overdue, Paid) are fiscal records and cannot be cancelled outright: use create_credit_note, which issues a certified credit note (avoir) and cancels the original. Call with confirm:true to act; otherwise returns a preview.",
       "readOnly": false,
       "destructive": true,
       "openWorld": false,
