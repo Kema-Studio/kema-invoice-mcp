@@ -7,7 +7,7 @@
     {
       "name": "create_invoice",
       "title": "Create invoice (draft)",
-      "description": "Create a new invoice in Draft status for a company, with line items. The invoice is NOT sent or certified - a human issues it from the app (or use issue_invoice). VAT is computed automatically by strict server-side fiscal rules (scenario + defaults) - never ask the user for a VAT rate. The fiscal scenario and client snapshot are frozen at creation.",
+      "description": "Create an invoice for a company, with line items. In this product, creating an invoice means issuing it: after this call, show the user a short summary (client, lines, totals) and, on their approval, call issue_invoice with confirm:true. Keep it as a draft only if the user explicitly wants to review or edit it in the app first. VAT is computed automatically by strict server-side fiscal rules (scenario + defaults) - never ask the user for a VAT rate. The fiscal scenario and client snapshot are frozen at creation.",
       "readOnly": false,
       "destructive": false,
       "openWorld": false,
@@ -15,8 +15,8 @@
     },
     {
       "name": "issue_invoice",
-      "title": "Issue invoice (LEGALLY BINDING - fiscal certification)",
-      "description": "Issue a Draft invoice - the legal act of CREATING the invoice (the product calls this 'Créer la facture'; the old 'send' concept is obsolete). The draft becomes a certified, immutable invoice (status Sent, displayed as 'Créée') and is IMMEDIATELY submitted for fiscal certification. IRREVERSIBLE and legally binding under French law - undone only with a credit note. ALWAYS show the user the invoice details and get their explicit approval before calling with confirm:true. Without confirm, returns a preview of what will be certified.",
+      "title": "Issue invoice (LEGALLY BINDING)",
+      "description": "Issue a Draft invoice: the legal act of creating it (the product calls this 'Créer la facture'). The invoice becomes a definitive legal document (status Sent, displayed as 'Créée'): IRREVERSIBLE under French law, undone only with a credit note. ALWAYS show the user the invoice summary and get their explicit approval before calling with confirm:true; without confirm, returns a preview. Fiscal certification happens inside this call and is internal plumbing: once it returns, tell the user the invoice is created and nothing more. NEVER mention certification, fiscal status, immutability or processing to the user unless this tool returns an error.",
       "readOnly": false,
       "destructive": true,
       "openWorld": true,
@@ -132,8 +132,8 @@
     },
     {
       "name": "check_certification_status",
-      "title": "Check certification status",
-      "description": "Refresh an issued invoice's fiscal certification status by querying the certification provider and reconciling it into the database. Use after issue_invoice when certification_status is 'processing' or looks stale.",
+      "title": "Check certification status (maintenance)",
+      "description": "Maintenance tool: refresh an issued document's fiscal certification state from the certification provider and reconcile it into the database. Certification is internal plumbing that completes on its own after issue_invoice: NEVER call this proactively, and never bring certification up with the user. Use it only when the user explicitly asks about certification, or after issue_invoice returned a certification error.",
       "readOnly": false,
       "destructive": false,
       "openWorld": true,
@@ -231,8 +231,8 @@
     },
     {
       "name": "send_provision",
-      "title": "Issue provision (LEGALLY BINDING - fiscal certification)",
-      "description": "Issue a Draft provision - the legal act of creating it. The draft becomes a certified document (status Sent) and is IMMEDIATELY submitted for fiscal certification (PROV series). IRREVERSIBLE and legally binding under French law. ALWAYS show the user the provision details and get their explicit approval before calling with confirm:true. Without confirm, returns a preview of what will be certified.",
+      "title": "Issue provision (LEGALLY BINDING)",
+      "description": "Issue a Draft provision: the legal act of creating it. The provision becomes a definitive legal document (status Sent, PROV series): IRREVERSIBLE and legally binding under French law. ALWAYS show the user the provision details and get their explicit approval before calling with confirm:true; without confirm, returns a preview. Fiscal certification happens inside this call and is internal plumbing: once it returns, tell the user the provision is created and nothing more. NEVER mention certification, fiscal status, immutability or processing to the user unless this tool returns an error.",
       "readOnly": false,
       "destructive": true,
       "openWorld": true,
